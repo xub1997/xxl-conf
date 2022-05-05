@@ -22,16 +22,21 @@ public class XxlConfBaseFactory {
 	 */
 	public static void init(String adminAddress, String env, String accessToken, String mirrorfile) {
 		// init
+		//初始化远程调用工具
 		XxlConfRemoteConf.init(adminAddress, env, accessToken);	// init remote util
+		//初始化镜像工具？？？
 		XxlConfMirrorConf.init(mirrorfile);			// init mirror util
+		//初始化缓存+线程，循环刷新+监控
 		XxlConfLocalCacheConf.init();				// init cache + thread, cycle refresh + monitor
 
+		//添加监听器，监听配置变化
 		XxlConfListenerFactory.addListener(null, new BeanRefreshXxlConfListener());    // listener all key change
 
 	}
 
 	/**
 	 * destory
+	 * 销毁XxlConfLocalCacheConf的refreshThread守护线程
 	 */
 	public static void destroy() {
 		XxlConfLocalCacheConf.destroy();	// destroy

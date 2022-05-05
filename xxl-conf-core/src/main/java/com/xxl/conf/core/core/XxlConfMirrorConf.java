@@ -19,9 +19,9 @@ public class XxlConfMirrorConf {
 
     private static String mirrorfile = null;
 
-    public static void init(String mirrorfileParam){
+    public static void init(String mirrorfileParam) {
         // valid
-        if (mirrorfileParam==null || mirrorfileParam.trim().length()==0) {
+        if (mirrorfileParam == null || mirrorfileParam.trim().length() == 0) {
             throw new XxlConfException("xxl-conf mirrorfileParam can not be empty");
         }
 
@@ -29,15 +29,16 @@ public class XxlConfMirrorConf {
     }
 
     /**
+     * 读取镜像配置？？？
      * read mirror conf
      *
      * @return
      */
-    public static Map<String, String> readConfMirror(){
-        Properties mirrorProp = PropUtil.loadFileProp( mirrorfile );
-        if (mirrorProp!=null && mirrorProp.stringPropertyNames()!=null && mirrorProp.stringPropertyNames().size()>0) {
+    public static Map<String, String> readConfMirror() {
+        Properties mirrorProp = PropUtil.loadFileProp(mirrorfile);
+        if (mirrorProp != null && mirrorProp.stringPropertyNames() != null && mirrorProp.stringPropertyNames().size() > 0) {
             Map<String, String> mirrorConfData = new HashMap<>();
-            for (String key: mirrorProp.stringPropertyNames()) {
+            for (String key : mirrorProp.stringPropertyNames()) {
                 mirrorConfData.put(key, mirrorProp.getProperty(key));
             }
             return mirrorConfData;
@@ -46,13 +47,14 @@ public class XxlConfMirrorConf {
     }
 
     /**
+     * 写镜像配置
      * write mirror conf
      *
      * @param mirrorConfDataParam
      */
-    public static void writeConfMirror(Map<String, String> mirrorConfDataParam){
+    public static void writeConfMirror(Map<String, String> mirrorConfDataParam) {
         Properties properties = new Properties();
-        for (Map.Entry<String, String> confItem: mirrorConfDataParam.entrySet()) {
+        for (Map.Entry<String, String> confItem : mirrorConfDataParam.entrySet()) {
             properties.setProperty(confItem.getKey(), confItem.getValue());
         }
 

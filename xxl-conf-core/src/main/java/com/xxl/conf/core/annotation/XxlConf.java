@@ -20,13 +20,14 @@ public @interface XxlConf {
     String value();
 
     /**
-     * conf default value
+     * conf default value 配置的默认值
      *
      * @return
      */
     String defaultValue() default "";
 
     /**
+     * 当值更改时，是否需要回调刷新。
      *  whether you need a callback refresh, when the value changes.
      *
      * @return

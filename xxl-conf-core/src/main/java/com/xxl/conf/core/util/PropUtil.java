@@ -62,7 +62,8 @@ public class PropUtil {
     public static Properties loadFileProp(String propertyFileName) {
         InputStream in = null;
         try {
-            // load file location, disk
+
+            // load file location, disk 加载文件位置，磁盘
             File file = new File(propertyFileName);
             if (!file.exists()) {
                 return null;

@@ -24,11 +24,11 @@ public class XxlConfRemoteConf {
 
     public static void init(String adminAddress, String env, String accessToken) {
 
-        // valid
-        if (adminAddress==null || adminAddress.trim().length()==0) {
+        // valid 验证配置中心地址
+        if (adminAddress == null || adminAddress.trim().length() == 0) {
             throw new XxlConfException("xxl-conf adminAddress can not be empty");
         }
-        if (env==null || env.trim().length()==0) {
+        if (env == null || env.trim().length() == 0) {
             throw new XxlConfException("xxl-conf env can not be empty");
         }
 
@@ -38,9 +38,9 @@ public class XxlConfRemoteConf {
         XxlConfRemoteConf.accessToken = accessToken;
 
 
-        // parse
+        // parse 解析
         XxlConfRemoteConf.adminAddressArr = new ArrayList<>();
-        if (adminAddress.contains(",")) {
+        if (!adminAddress.contains(",")) {
             XxlConfRemoteConf.adminAddressArr.add(adminAddress);
         } else {
             XxlConfRemoteConf.adminAddressArr.addAll(Arrays.asList(adminAddress.split(",")));
@@ -59,7 +59,7 @@ public class XxlConfRemoteConf {
      * @param timeout
      * @return
      */
-    private static Map<String, Object> getAndValid(String url, String requestBody, int timeout){
+    private static Map<String, Object> getAndValid(String url, String requestBody, int timeout) {
 
         // resp json
         String respJson = BasicHttpUtil.postBody(url, requestBody, timeout);
@@ -71,7 +71,7 @@ public class XxlConfRemoteConf {
         Map<String, Object> respObj = BasicJson.parseMap(respJson);
         int code = Integer.valueOf(String.valueOf(respObj.get("code")));
         if (code != 200) {
-            logger.info("request fail, msg={}", (respObj.containsKey("msg")?respObj.get("msg"):respJson) );
+            logger.info("request fail, msg={}", (respObj.containsKey("msg") ? respObj.get("msg") : respJson));
             return null;
         }
         return respObj;
@@ -85,7 +85,7 @@ public class XxlConfRemoteConf {
      * @return
      */
     public static Map<String, String> find(Set<String> keys) {
-        for (String adminAddressUrl: XxlConfRemoteConf.adminAddressArr) {
+        for (String adminAddressUrl : XxlConfRemoteConf.adminAddressArr) {
 
             // url + param
             String url = adminAddressUrl + "/conf/find";
@@ -101,7 +101,7 @@ public class XxlConfRemoteConf {
             Map<String, Object> respObj = getAndValid(url, paramsJson, 5);
 
             // parse
-            if (respObj!=null && respObj.containsKey("data")) {
+            if (respObj != null && respObj.containsKey("data")) {
                 Map<String, String> data = (Map<String, String>) respObj.get("data");
                 return data;
             }
@@ -112,7 +112,7 @@ public class XxlConfRemoteConf {
 
     public static String find(String key) {
         Map<String, String> result = find(new HashSet<String>(Arrays.asList(key)));
-        if (result!=null) {
+        if (result != null) {
             return result.get(key);
         }
         return null;
@@ -127,9 +127,9 @@ public class XxlConfRemoteConf {
      */
     public static boolean monitor(Set<String> keys) {
 
-        for (String adminAddressUrl: XxlConfRemoteConf.adminAddressArr) {
+        for (String adminAddressUrl : XxlConfRemoteConf.adminAddressArr) {
 
-            // url + param
+            // url + param 组装请求链接与参数
             String url = adminAddressUrl + "/conf/monitor";
 
             XxlConfParamVO paramVO = new XxlConfParamVO();
@@ -139,10 +139,25 @@ public class XxlConfRemoteConf {
 
             String paramsJson = BasicJson.toJson(paramVO);
 
-            // get and valid
+            // get and valid利用
+            /**
+             * 当一个请求到达API接口，如果该API接口的return返回值是DeferredResult，
+             * 在没有超时或者DeferredResult对象设置setResult时，接口不会返回，但是Servlet容器线程会结束
+             * ，DeferredResult另起线程来进行结果处理(即这种操作提升了服务短时间的吞吐能力)，并setResult
+             * ，如此以来这个请求不会占用服务连接池太久，如果超时或设置setResult，接口会立即返回。
+             *
+             * 使用DeferredResult的流程：
+             *
+             * 浏览器发起异步请求
+             * 请求到达服务端被挂起
+             * 向浏览器进行响应，分为两种情况：
+             *  1 调用DeferredResult.setResult()，请求被唤醒，返回结果
+             *  2 超时，返回一个你设定的结果
+             * 浏览得到响应，再次重复1，处理此次响应结果
+             */
             Map<String, Object> respObj = getAndValid(url, paramsJson, 60);
 
-            return respObj!=null?true:false;
+            return respObj != null ? true : false;
         }
         return false;
     }
